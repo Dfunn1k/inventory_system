@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql_backend_offline
+    environment:
+      MYSQL_DATABASE: ${INT_MYSQL_DB}
+      MYSQL_USER: ${INT_MYSQL_USER}
+      MYSQL_PASSWORD: ${INT_MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${INT_MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+    ports:
+      - "${INT_MYSQL_PORT}:${INT_MYSQL_PORT}"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  web:
+    build: .
+    container_name: django_backend_offline
+    command: python3 manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+
+volumes:
+  mysql_data:
