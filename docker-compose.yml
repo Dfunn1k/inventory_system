@@ -3,7 +3,7 @@ version: '3.8'
 services:
   db:
     image: mysql:8.0
-    container_name: mysql_backend_offline
+    container_name: mysql_backend_inventory
     environment:
       MYSQL_DATABASE: ${INT_MYSQL_DB}
       MYSQL_USER: ${INT_MYSQL_USER}
@@ -22,8 +22,12 @@ services:
 
   web:
     build: .
-    container_name: django_backend_offline
-    command: python3 manage.py runserver 0.0.0.0:8000
+    container_name: inventory_backend_offline
+    command: >
+      sh -c "python manage.py makemigrations inventory&&
+             python manage.py migrate &&
+             python manage.py shell < /code/create_superuser.py &&
+             python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/code
     ports:

@@ -57,22 +57,22 @@ class Stock(BaseModel):
         verbose_name_plural = 'Stock'
 
 
-class Supplier(BaseModel):
-    name = models.CharField(max_length=200, verbose_name='Nombre')
-    address = models.CharField(max_length=200, blank=True, null=True, verbose_name='Dirección')
-    phone = models.CharField(max_length=20, blank=True, null=True, verbose_name='Teléfono')
-    email = models.EmailField(blank=True, null=True, verbose_name='Correo electrónico')
-    country = models.CharField(max_length=50, blank=True, null=True, verbose_name='País')
-    city = models.CharField(max_length=50, blank=True, null=True, verbose_name='Ciudad')
-    ruc = models.CharField(max_length=12, blank=True, null=True, unique=True, verbose_name='RUC')
-    notes = models.TextField(blank=True, null=True, verbose_name='Notas')
-
-    class Meta:
-        verbose_name = 'Proveedor'
-        verbose_name_plural = 'Proveedores'
-
-    def __str__(self):
-        return self.name
+# class Supplier(BaseModel):
+#     name = models.CharField(max_length=200, verbose_name='Nombre')
+#     address = models.CharField(max_length=200, blank=True, null=True, verbose_name='Dirección')
+#     phone = models.CharField(max_length=20, blank=True, null=True, verbose_name='Teléfono')
+#     email = models.EmailField(blank=True, null=True, verbose_name='Correo electrónico')
+#     country = models.CharField(max_length=50, blank=True, null=True, verbose_name='País')
+#     city = models.CharField(max_length=50, blank=True, null=True, verbose_name='Ciudad')
+#     ruc = models.CharField(max_length=12, blank=True, null=True, unique=True, verbose_name='RUC')
+#     notes = models.TextField(blank=True, null=True, verbose_name='Notas')
+#
+#     class Meta:
+#         verbose_name = 'Proveedor'
+#         verbose_name_plural = 'Proveedores'
+#
+#     def __str__(self):
+#         return self.name
 
 
 class Costumer(BaseModel):
@@ -100,45 +100,45 @@ class Costumer(BaseModel):
         return f'{self.name} - {self.identification_type}: {self.vat}'
 
 
-class ProductSupplier(BaseModel):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Producto')
-    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, verbose_name='Proveedor')
-    number_invoicing = models.CharField(max_length=20, blank=True, null=True, verbose_name='Número de factura')
-    purchase_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Precio de compra')
-    quantity = models.PositiveIntegerField(verbose_name='Cantidad')
-    total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total')
-    datetime = models.DateTimeField(auto_now_add=True, verbose_name='Fecha y hora')
-
-    class Meta:
-        verbose_name = 'Compra de Producto'
-        verbose_name_plural = 'Compras de Productos'
-
-    def __str__(self):
-        return f'{self.product} - {self.supplier} - {self.purchase_price}'
-
-    def save(self, *args, **kwargs):
-        is_new = self._state.adding
-        super(ProductSupplier, self).save(*args, **kwargs)
-        if is_new:
-            StockMove.objects.create(
-                product=self.product,
-                type='In',
-                quantity=self.quantity,
-                supplier=self.supplier,
-                notes=f'Compra de {self.product} a {self.supplier}'
-            )
-            Stock.objects.create(
-                product=self.product,
-                quantity=self.quantity,
-                notes=f'Compra de {self.product} a {self.supplier}'
-            )
+# class ProductSupplier(BaseModel):
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Producto')
+#     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, verbose_name='Proveedor')
+#     number_invoicing = models.CharField(max_length=20, blank=True, null=True, verbose_name='Número de factura')
+#     purchase_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Precio de compra')
+#     quantity = models.PositiveIntegerField(verbose_name='Cantidad')
+#     total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total')
+#     datetime = models.DateTimeField(auto_now_add=True, verbose_name='Fecha y hora')
+#
+#     class Meta:
+#         verbose_name = 'Compra de Producto'
+#         verbose_name_plural = 'Compras de Productos'
+#
+#     def __str__(self):
+#         return f'{self.product} - {self.supplier} - {self.purchase_price}'
+#
+#     def save(self, *args, **kwargs):
+#         is_new = self._state.adding
+#         super(ProductSupplier, self).save(*args, **kwargs)
+#         if is_new:
+#             StockMove.objects.create(
+#                 product=self.product,
+#                 type='In',
+#                 quantity=self.quantity,
+#                 supplier=self.supplier,
+#                 notes=f'Compra de {self.product} a {self.supplier}'
+#             )
+#             Stock.objects.create(
+#                 product=self.product,
+#                 quantity=self.quantity,
+#                 notes=f'Compra de {self.product} a {self.supplier}'
+#             )
 
 
 class ProductCostumer(BaseModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Producto')
     costumer = models.ForeignKey(Costumer, on_delete=models.CASCADE, verbose_name='Cliente', blank=True, null=True)
     quantity = models.PositiveIntegerField(verbose_name='Cantidad')
-    total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total')
+    # total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total')
     # sale_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Precio de venta')
     datetime = models.DateTimeField(auto_now_add=True, verbose_name='Fecha y hora')
 
@@ -159,6 +159,9 @@ class ProductCostumer(BaseModel):
                 quantity=self.quantity,
                 notes=f'Venta de {self.product} a {self.costumer}'
             )
+            stock_entry, created = Stock.objects.get_or_create(product=self.product)
+            stock_entry.quantity -= self.quantity
+            stock_entry.save()
 
 
 class StockMove(BaseModel):
@@ -170,10 +173,19 @@ class StockMove(BaseModel):
     type = models.CharField(max_length=3, choices=type_moves, verbose_name='Tipo')
     quantity = models.PositiveIntegerField(verbose_name='Cantidad')
     datetime = models.DateTimeField(auto_now_add=True, verbose_name='Fecha y hora')
-    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, blank=True, null=True, verbose_name='Proveedor')
     notes = models.TextField(blank=True, null=True, verbose_name='Notas')
 
     class Meta:
         verbose_name = 'Movimiento de Stock'
         verbose_name_plural = 'Movimientos de Stock'
 
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding
+        super(StockMove, self).save(*args, **kwargs)
+        if is_new:
+            stock_entry, created = Stock.objects.get_or_create(product=self.product, quantity=0)
+            if self.type == 'In':
+                stock_entry.quantity += self.quantity
+            elif self.type == 'Out':
+                stock_entry.quantity -= self.quantity
+            stock_entry.save()

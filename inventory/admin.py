@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, Stock, Supplier, ProductSupplier, StockMove, ProductCostumer, Costumer
+from .models import Category, Product, Stock, StockMove, ProductCostumer, Costumer
 from django.contrib.admin import SimpleListFilter
 
 
@@ -95,52 +95,52 @@ class StockAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(Supplier)
-class SupplierAdmin(admin.ModelAdmin):
-    list_display = ('name', 'phone', 'email', 'ruc')
-    search_fields = ('name', 'ruc', 'email')
-    readonly_fields = ('id', 'created_at', 'updated_at')
-    fieldsets = (
-        (
-            'Atributos', {
-                'fields': (
-                    'id', 'name', 'address', 'phone', 'email', 'country', 'city', 'ruc', 'notes'
-                )
-            }
-        ),
-        (
-            'Auditoría', {
-                'fields': (
-                    'created_at', 'updated_at',
-                )
-            }
-        )
+# @admin.register(Supplier)
+# class SupplierAdmin(admin.ModelAdmin):
+#     list_display = ('name', 'phone', 'email', 'ruc')
+#     search_fields = ('name', 'ruc', 'email')
+#     readonly_fields = ('id', 'created_at', 'updated_at')
+#     fieldsets = (
+#         (
+#             'Atributos', {
+#                 'fields': (
+#                     'id', 'name', 'address', 'phone', 'email', 'country', 'city', 'ruc', 'notes'
+#                 )
+#             }
+#         ),
+#         (
+#             'Auditoría', {
+#                 'fields': (
+#                     'created_at', 'updated_at',
+#                 )
+#             }
+#         )
+#
+#     )
 
-    )
 
-
-@admin.register(ProductSupplier)
-class ProductSupplierAdmin(admin.ModelAdmin):
-    list_display = ('number_invoicing', 'datetime', 'product', 'supplier')
-    search_fields = ('product__name', 'supplier__name', 'number_invoicing', 'datetime')
-    list_filter = ('product', 'supplier', 'datetime')
-    readonly_fields = ('id', 'created_at', 'updated_at', 'datetime')
-    fieldsets = (
-        (
-            'Parámetros', {
-                'fields': (
-                    'id', 'number_invoicing', 'product', 'supplier', 'purchase_price', 'quantity', 'total', 'datetime',
-                )
-            }
-        ),
-        (
-            'Auditoría', {
-                'fields': (
-                    'created_at', 'updated_at',
-                )
-            }
-        )
-    )
+# @admin.register(ProductSupplier)
+# class ProductSupplierAdmin(admin.ModelAdmin):
+#     list_display = ('number_invoicing', 'datetime', 'product', 'supplier')
+#     search_fields = ('product__name', 'supplier__name', 'number_invoicing', 'datetime')
+#     list_filter = ('product', 'supplier', 'datetime')
+#     readonly_fields = ('id', 'created_at', 'updated_at', 'datetime')
+#     fieldsets = (
+#         (
+#             'Parámetros', {
+#                 'fields': (
+#                     'id', 'number_invoicing', 'product', 'supplier', 'purchase_price', 'quantity', 'total', 'datetime',
+#                 )
+#             }
+#         ),
+#         (
+#             'Auditoría', {
+#                 'fields': (
+#                     'created_at', 'updated_at',
+#                 )
+#             }
+#         )
+#     )
 
 
 @admin.register(StockMove)
@@ -148,60 +148,12 @@ class StockMoveAdmin(admin.ModelAdmin):
     list_display = ('type', 'product', 'quantity', 'datetime')
     search_fields = ('product__name', 'datetime')
     list_filter = ('type', 'product', 'datetime')
-    readonly_fields = ('id', 'created_at', 'updated_at')
-    fieldsets = (
-        (
-            'Parámetros', {
-                'fields': (
-                    'id', 'type', 'product', 'quantity', 'datetime', 'supplier', 'notes',
-                )
-            }
-        ),
-        (
-            'Auditoría', {
-                'fields': (
-                    'created_at', 'updated_at',
-                )
-            }
-        )
-    )
-
-
-@admin.register(Costumer)
-class CostumerAdmin(admin.ModelAdmin):
-    list_display = ('name', 'identification_type', 'vat', 'phone', 'email')
-    search_fields = ('name', 'identification_type', 'email', 'vat')
-    readonly_fields = ('id', 'created_at', 'updated_at')
-    fieldsets = (
-        (
-            'Atributos', {
-                'fields': (
-                    'id', 'name', 'identification_type', 'vat', 'address', 'phone', 'email', 'country', 'city', 'is_occasional'
-                )
-            }
-        ),
-        (
-            'Auditoría', {
-                'fields': (
-                    'created_at', 'updated_at',
-                )
-            }
-        )
-
-    )
-
-
-@admin.register(ProductCostumer)
-class ProductCostumerAdmin(admin.ModelAdmin):
-    list_display = ('costumer', 'product', 'datetime', 'quantity', 'total')
-    search_fields = ('product__name', 'costumer__name', 'date')
-    list_filter = ('product', 'costumer', 'datetime')
     readonly_fields = ('id', 'created_at', 'updated_at', 'datetime')
     fieldsets = (
         (
             'Parámetros', {
                 'fields': (
-                    'id', 'costumer', 'product', 'quantity', 'total', 'datetime',
+                    'id', 'type', 'product', 'quantity', 'datetime', 'notes',
                 )
             }
         ),
@@ -213,3 +165,27 @@ class ProductCostumerAdmin(admin.ModelAdmin):
             }
         )
     )
+
+#
+# @admin.register(Costumer)
+# class CostumerAdmin(admin.ModelAdmin):
+#     list_display = ('name', 'identification_type', 'vat', 'phone', 'email')
+#     search_fields = ('name', 'identification_type', 'email', 'vat')
+#     readonly_fields = ('id', 'created_at', 'updated_at')
+#     fieldsets = (
+#         (
+#             'Atributos', {
+#                 'fields': (
+#                     'id', 'name', 'identification_type', 'vat', 'address', 'phone', 'email', 'country', 'city', 'is_occasional'
+#                 )
+#             }
+#         ),
+#         (
+#             'Auditoría', {
+#                 'fields': (
+#                     'created_at', 'updated_at',
+#                 )
+#             }
+#         )
+#
+#     )
